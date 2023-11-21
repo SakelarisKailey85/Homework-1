@@ -40,5 +40,25 @@ contract DecentralizedLottery is Ownable {
         ticketPrice = _ticketPrice;
         lotteryEndTime = block.timestamp + _lotteryDuration;
     }
+function purchaseTickets(uint256 _numTickets) external onlyBeforeLotteryEnd {
+        require(_numTickets > 0, "Number of tickets must be greater than 0");
 
+        uint256 totalCost = ticketPrice * _numTickets;
+
+        // Transfer lottery tokens from the participant to the contract
+        lotteryToken.safeTransferFrom(msg.sender, address(this), totalCost);
+
+        // Update participant's ticket count
+        tickets[msg.sender] += _numTickets;
+
+        // Add participant to the list if they are not already included
+        if (tickets[msg.sender] == _numTickets) {
+            participants.push(msg.sender);
+        }
+
+        // Update ticket pool
+        ticketPool += _numTickets;
+
+        emit LotteryTicketPurchased(msg.sender, _numTickets);
+    }
 }
