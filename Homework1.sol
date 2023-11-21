@@ -81,4 +81,12 @@ function endLottery() external onlyOwner onlyAfterLotteryEnd {
         delete participants;
         ticketPool = 0;
     }
+
+function getParticipantCount() external view returns (uint256) {
+        return participants.length;
+    }
+
+    function getLotteryDetails() external view returns (uint256, uint256, uint256, uint256) {
+        return (ticketPrice, ticketPool, lotteryEndTime, block.timestamp);
+    }
 }
