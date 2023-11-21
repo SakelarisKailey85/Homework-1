@@ -61,4 +61,24 @@ function purchaseTickets(uint256 _numTickets) external onlyBeforeLotteryEnd {
 
         emit LotteryTicketPurchased(msg.sender, _numTickets);
     }
+
+function endLottery() external onlyOwner onlyAfterLotteryEnd {
+        require(ticketPool > 0, "No participants in the lottery");
+
+        // Select a random winner based on the blockhash
+        bytes32 randomHash = keccak256(abi.encodePacked(blockhash(block.number - 1)));
+        address winner = participants[uint256(randomHash) % participants.length];
+
+        // Calculate prize amount
+        uint256 prize = (lotteryToken.balanceOf(address(this)) * ticketPrice) / ticketPool;
+
+        // Transfer prize to the winner
+        lotteryToken.safeTransfer(winner, prize);
+
+        emit LotteryWinnerSelected(winner, prize);
+
+        // Reset lottery state
+        delete participants;
+        ticketPool = 0;
+    }
 }
